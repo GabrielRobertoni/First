@@ -447,7 +447,7 @@ O projeto já tem [`Dockerfile`](Dockerfile) (build multi-stage com Maven e JRE 
 ### Opção A — Blueprint (cria banco + aplicação de uma vez)
 
 1. Acesse [dashboard.render.com](https://dashboard.render.com) → **New** → **Blueprint**.
-2. Conecte o repositório do GitHub e informe o caminho do arquivo: `cp5-java-advanced-parte1/render.yaml`.
+2. Conecte este repositório do GitHub. O Render encontra o `render.yaml` na raiz automaticamente.
 3. O Render vai pedir os valores de `ADMIN_PASSWORD` e `DEMO_CLIENTE_PASSWORD` (escolha as senhas de produção).
 4. Clique em **Apply** e aguarde o build (alguns minutos). O link fica em `https://mercado-express-XXXX.onrender.com`.
 
@@ -457,7 +457,7 @@ O projeto já tem [`Dockerfile`](Dockerfile) (build multi-stage com Maven e JRE 
    *Port*, *Database*, *Username* e *Password*.
 2. **New → Web Service** → repositório do GitHub:
    - **Language/Runtime:** Docker
-   - **Root Directory:** `cp5-java-advanced-parte1`
+   - **Root Directory:** deixe em branco (o projeto está na raiz do repositório)
    - **Instance Type:** Free
    - **Environment Variables:** `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD` (dados do passo 1),
      `ADMIN_PASSWORD` e `DEMO_CLIENTE_PASSWORD`.

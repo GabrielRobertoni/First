@@ -12,7 +12,7 @@ INTEGRANTES
 - Gabriel Robertoni Padilha ............. RM 566293
 
 GITHUB DO PROJETO (README com descrição, prints e explicações, incluindo a tela de login)
-https://github.com/GabrielRobertoni/First/tree/claude/zen-turing-69jx24/cp5-java-advanced-parte1
+https://github.com/________________/cp5-java-advanced-parte1
 
 DEPLOY (link de produção)
 https://________________________.onrender.com
