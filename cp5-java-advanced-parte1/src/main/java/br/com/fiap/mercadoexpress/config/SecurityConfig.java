@@ -28,7 +28,7 @@ public class SecurityConfig {
         http
             .authorizeHttpRequests(auth -> auth
                 // Rotas públicas
-                .requestMatchers("/", "/login", "/cadastro", "/acesso-negado", "/error",
+                .requestMatchers("/", "/index.html", "/login", "/cadastro", "/acesso-negado", "/error",
                         "/css/**", "/js/**", "/img/**", "/favicon.ico", "/favicon.svg").permitAll()
                 // Área do administrador
                 .requestMatchers("/admin/**").hasRole("ADMIN")

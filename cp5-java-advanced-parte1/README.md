@@ -17,11 +17,8 @@ com acessos diferentes e deploy em nuvem.
 
 | Nome | RM |
 |---|---|
-| Hebert Lopes do Santos | 563192 |
-| Nicolas Monteiro Ramiro | 562380 |
-| Marcus Vinícius Vila Nova da Silva | 558771 |
-| Bruno Ferreira | 563489 |
 | Gabriel Robertoni Padilha | 566293 |
+| Bruno Ferreira | 563489 |
 
 ---
 
@@ -44,6 +41,7 @@ com acessos diferentes e deploy em nuvem.
 
 | Requisito do enunciado | Como foi atendido |
 |---|---|
+| Mesmo tema do último CP (CP4: mercado express) | Mesmo Mercado Express, mantendo as colunas pedidas no CP4 (**Id, Nome, Tipo, Setor, Tamanho e Preco**) e acrescentando estoque e descrição |
 | Spring Framework MVC, Maven, Java, Lombok | Spring Boot 4.1.1 (Spring MVC 7), Maven, Java 21 e Lombok nas entidades e DTOs |
 | Interface Web com CRUD em links/botões | Botões **+ Novo produto**, **Ver**, **Editar**, **Excluir** e formulário de busca |
 | Consulta de produto em tabela do PostgreSQL | Tabela **`TDS_Sec_MVC_TB_Mercado`** (lista, busca por nome/tipo, filtro por setor e detalhe) |
@@ -53,7 +51,7 @@ com acessos diferentes e deploy em nuvem.
 | Perfil salvo em tabela de usuários | Tabela **`TDS_Users_Mercado`** (senha em hash **BCrypt**) |
 | Redirecionamento para tela restrita após login | **ADMIN → `/admin/painel`** · **CLIENTE → `/produtos`** |
 | Pelo menos 2 tipos de usuário e respectivos acessos | **ADMIN** (gerente) e **CLIENTE** — ver [matriz de acesso](#perfis-e-permissões) |
-| Landing page `index.html` | [`templates/index.html`](src/main/resources/templates/index.html) mapeada em `/` (pública) |
+| Landing page `index.html` | [`templates/index.html`](src/main/resources/templates/index.html), pública, em `/` e em `/index.html` |
 | Deploy com link de produção no GitHub | Render, com [`Dockerfile`](Dockerfile) e [`render.yaml`](render.yaml) ([passo a passo](#-deploy-no-render)) |
 
 ---
@@ -229,6 +227,38 @@ http
 5. **Sign Up:** `POST /cadastro` valida nome, e-mail, senha (6 a 72 caracteres) e confirmação; recusa e-mail repetido;
    grava o usuário como **CLIENTE** com a senha em BCrypt e volta ao login com o e-mail preenchido.
 
+**Exemplo — formulário da tela de login** ([`login.html`](src/main/resources/templates/login.html)):
+
+```html
+<form th:action="@{/login}" method="post" class="formulario">
+    <!-- o Thymeleaf insere automaticamente o campo oculto _csrf -->
+    <input type="email" id="email" name="email" required autocomplete="username" th:value="${param.email}">
+    <input type="password" id="senha" name="senha" required autocomplete="current-password">
+    <button type="submit">Entrar</button>
+</form>
+<a th:href="@{/cadastro}">Cadastre-se (Sign Up)</a>
+```
+
+**Exemplo — usuário sem login vai para o Sign Up** ([`LoginFalhaHandler.java`](src/main/java/br/com/fiap/mercadoexpress/security/LoginFalhaHandler.java)):
+
+```java
+String email = request.getParameter("email");
+if (email != null && !email.isBlank() && !usuarioService.emailCadastrado(email)) {
+    // e-mail sem conta -> tela de Sign Up, já com o e-mail preenchido
+    redirectStrategy.sendRedirect(request, response, "/cadastro?semConta&email=" + email);
+    return;
+}
+redirectStrategy.sendRedirect(request, response, "/login?erro");   // senha errada
+```
+
+**Exemplo — redirecionamento por perfil após o login** ([`LoginSucessoHandler.java`](src/main/java/br/com/fiap/mercadoexpress/security/LoginSucessoHandler.java)):
+
+```java
+boolean admin = authentication.getAuthorities().stream()
+        .anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()));
+return admin ? "/admin/painel" : "/produtos";
+```
+
 **Exemplo de fluxo completo:**
 
 ```
@@ -346,7 +376,7 @@ Lista da tabela `TDS_Users_Mercado`. O admin promove clientes a administradores 
 
 | Método | Rota | Descrição | Acesso |
 |---|---|---|---|
-| GET | `/` | Landing page (`index.html`) | Público |
+| GET | `/` e `/index.html` | Landing page (`index.html`) | Público |
 | GET | `/login` | Tela de login personalizada | Público |
 | POST | `/login` | Autenticação (Spring Security) | Público |
 | GET | `/cadastro` | Tela de Sign Up | Público |
@@ -378,8 +408,8 @@ Lista da tabela `TDS_Users_Mercado`. O admin promove clientes a administradores 
 
 ### Opção 1 — Sem instalar nada (PostgreSQL embutido) ⭐ mais simples
 
-Sobe um PostgreSQL 16 real dentro do próprio processo, aplica as migrations e inicia o sistema. Não precisa de
-Docker nem de banco instalado. **Os dados são descartados ao parar** (cada execução começa do zero).
+Fornece um servidor PostgreSQL 16 real embutido e cria nele o banco `mercado_express`. A conexão continua
+configurada pelo **`application.yml`**, igual à produção. Não precisa de Docker nem de banco instalado. **Os dados são descartados ao parar** (cada execução começa do zero).
 
 - **Terminal** (na pasta que contém o `pom.xml`):
 
@@ -446,7 +476,7 @@ No IntelliJ, também dá para executar a classe `MercadoExpressApplication`.
 ./mvnw test
 ```
 
-São **51 testes de integração** que sobem a aplicação inteira contra um **PostgreSQL 16 real embarcado**
+São **52 testes de integração** que sobem a aplicação inteira contra um **PostgreSQL 16 real embarcado**
 (biblioteca zonky). Não é preciso ter Docker nem banco instalado para rodar os testes. Eles cobrem:
 
 | Classe | O que verifica |

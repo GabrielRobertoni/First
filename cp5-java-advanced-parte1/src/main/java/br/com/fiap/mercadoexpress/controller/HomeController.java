@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class HomeController {
 
-    /** Landing page pública (templates/index.html). */
-    @GetMapping("/")
+    /** Landing page pública (templates/index.html), acessível por / e por /index.html. */
+    @GetMapping({"/", "/index.html"})
     public String index() {
         return "index";
     }

@@ -32,6 +32,15 @@ class RotasPublicasTest extends TesteIntegracao {
     }
 
     @Test
+    @DisplayName("A landing page também abre pelo endereço /index.html, sem login")
+    void landingPagePorIndexHtml() throws Exception {
+        mvc.perform(get("/index.html"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("index"))
+                .andExpect(content().string(containsString("Criar conta")));
+    }
+
+    @Test
     @DisplayName("Tela de login é a personalizada (não a padrão do Spring Security)")
     void loginPersonalizado() throws Exception {
         mvc.perform(get("/login"))

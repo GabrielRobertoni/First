@@ -5,11 +5,8 @@ CHECKPOINT 5 - PARTE I (Spring Security MVC, Deploy e PostgreSQL)
 Turma: ________   Curso: Análise e Desenvolvimento de Sistemas (TDS)
 
 INTEGRANTES
-- Hebert Lopes do Santos ................ RM 563192
-- Nicolas Monteiro Ramiro ............... RM 562380
-- Marcus Vinícius Vila Nova da Silva .... RM 558771
-- Bruno Ferreira ........................ RM 563489
 - Gabriel Robertoni Padilha ............. RM 566293
+- Bruno Ferreira ........................ RM 563489
 
 GITHUB DO PROJETO (README com descrição, prints e explicações, incluindo a tela de login)
 https://github.com/________________/cp5-java-advanced-parte1
