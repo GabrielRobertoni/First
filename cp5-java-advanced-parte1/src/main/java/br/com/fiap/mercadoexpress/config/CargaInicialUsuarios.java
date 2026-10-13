@@ -37,6 +37,9 @@ public class CargaInicialUsuarios implements ApplicationRunner {
     @Value("${app.demo-cliente.senha}")
     private String clienteSenha;
 
+    @Value("${server.port:8080}")
+    private String porta;
+
     @Override
     public void run(ApplicationArguments args) {
         if (usuarioService.criarSeNaoExistir(adminNome, adminEmail, adminSenha, Perfil.ADMIN)) {
@@ -44,6 +47,16 @@ public class CargaInicialUsuarios implements ApplicationRunner {
         }
         if (criarCliente && usuarioService.criarSeNaoExistir(clienteNome, clienteEmail, clienteSenha, Perfil.CLIENTE)) {
             log.info("Cliente de demonstração criado: {}", clienteEmail);
+        }
+        if (System.getProperty(BancoDeDadosLocal.MARCADOR_PORTA) != null) {
+            // Execução local com o PostgreSQL embutido (sem acentos: console do Windows)
+            System.out.println();
+            System.out.println(">>> Mercado Express pronto: http://localhost:" + porta);
+            System.out.println(">>> Admin:   " + adminEmail + " / " + adminSenha);
+            if (criarCliente) {
+                System.out.println(">>> Cliente: " + clienteEmail + " / " + clienteSenha);
+            }
+            System.out.println();
         }
     }
 }

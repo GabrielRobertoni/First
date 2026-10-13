@@ -99,18 +99,22 @@
             <artifactId>spring-boot-starter-security-test</artifactId>
             <scope>test</scope>
         </dependency>
-        <!-- PostgreSQL real embarcado nos testes (não precisa de Docker nem de banco instalado) -->
+        <!--
+            PostgreSQL 16 REAL embutido: usado ao rodar na máquina (IntelliJ / mvnw spring-boot:run)
+            quando nenhum banco é configurado (variável DB_HOST ausente) e nos testes automatizados.
+            NÃO entra no JAR de deploy (ver "excludes" do spring-boot-maven-plugin abaixo).
+        -->
         <dependency>
             <groupId>io.zonky.test</groupId>
             <artifactId>embedded-postgres</artifactId>
             <version>${embedded-postgres.version}</version>
-            <scope>test</scope>
+            <optional>true</optional>
         </dependency>
         <!-- Binário extra para quem usa Mac com chip Apple (M1/M2/M3) -->
         <dependency>
             <groupId>io.zonky.test.postgres</groupId>
             <artifactId>embedded-postgres-binaries-darwin-arm64v8</artifactId>
-            <scope>test</scope>
+            <optional>true</optional>
         </dependency>
     </dependencies>
 
@@ -152,6 +156,50 @@
                         </exclude>
                     </excludes>
                 </configuration>
+                <executions>
+                    <!--
+                        Somente no empacotamento do JAR de deploy: o PostgreSQL embutido fica de fora.
+                        (Em "mvnw spring-boot:run" e no IntelliJ ele continua disponível.)
+                    -->
+                    <execution>
+                        <id>repackage</id>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                        <configuration>
+                            <excludes>
+                                <exclude>
+                                    <groupId>org.projectlombok</groupId>
+                                    <artifactId>lombok</artifactId>
+                                </exclude>
+                                <exclude>
+                                    <groupId>io.zonky.test</groupId>
+                                    <artifactId>embedded-postgres</artifactId>
+                                </exclude>
+                                <exclude>
+                                    <groupId>io.zonky.test.postgres</groupId>
+                                    <artifactId>embedded-postgres-binaries-windows-amd64</artifactId>
+                                </exclude>
+                                <exclude>
+                                    <groupId>io.zonky.test.postgres</groupId>
+                                    <artifactId>embedded-postgres-binaries-darwin-amd64</artifactId>
+                                </exclude>
+                                <exclude>
+                                    <groupId>io.zonky.test.postgres</groupId>
+                                    <artifactId>embedded-postgres-binaries-darwin-arm64v8</artifactId>
+                                </exclude>
+                                <exclude>
+                                    <groupId>io.zonky.test.postgres</groupId>
+                                    <artifactId>embedded-postgres-binaries-linux-amd64</artifactId>
+                                </exclude>
+                                <exclude>
+                                    <groupId>io.zonky.test.postgres</groupId>
+                                    <artifactId>embedded-postgres-binaries-linux-amd64-alpine</artifactId>
+                                </exclude>
+                            </excludes>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

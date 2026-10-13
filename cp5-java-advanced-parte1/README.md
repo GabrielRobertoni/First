@@ -93,7 +93,9 @@ src/main/java/br/com/fiap/mercadoexpress
 ├── config/
 │   ├── SecurityConfig.java          # regras de acesso, login próprio, logout, CSRF, cabeçalhos
 │   ├── PasswordConfig.java          # BCryptPasswordEncoder
-│   └── CargaInicialUsuarios.java    # cria o admin (e um cliente demo) na 1ª execução
+│   ├── CargaInicialUsuarios.java    # cria o admin (e um cliente demo) na 1ª execução
+│   ├── BancoDeDadosLocal.java       # sem DB_HOST: usa PostgreSQL embutido (rodar na máquina)
+│   └── PostgresEmbutido.java        # sobe o PostgreSQL 16 embutido (fora do JAR de deploy)
 ├── controller/                      # camada Web (Controller do MVC)
 │   ├── HomeController.java          # /, /login, /acesso-negado
 │   ├── CadastroController.java      # /cadastro (Sign Up)
@@ -401,27 +403,39 @@ Lista da tabela `TDS_Users_Mercado`. O admin promove clientes a administradores 
 
 ## ▶️ Como executar localmente
 
-**Pré-requisito comum:** JDK 21. O banco **não precisa estar instalado**: escolha uma das 3 opções.
+**Pré-requisito:** JDK 21 (o IntelliJ pode baixar em *File → Project Structure → SDK*). **Não é preciso instalar o PostgreSQL.**
 
-> 🌐 Para conferir o projeto sem instalar nada, use o **link do deploy** (topo deste README). As opções abaixo servem
-> para rodar o código na própria máquina.
+> 🌐 Para apenas conferir o sistema, use o **link do deploy** no topo deste README.
 
-### Opção 1 — Sem instalar nada (PostgreSQL embutido) ⭐ mais simples
+### Opção 1 — IntelliJ ou terminal, sem instalar nada ⭐ (recomendada)
 
-Fornece um servidor PostgreSQL 16 real embutido e cria nele o banco `mercado_express`. A conexão continua
-configurada pelo **`application.yml`**, igual à produção. Não precisa de Docker nem de banco instalado. **Os dados são descartados ao parar** (cada execução começa do zero).
-
-- **Terminal** (na pasta que contém o `pom.xml`):
+- **IntelliJ:** abra a pasta do projeto (a que contém o `pom.xml`), aguarde o Maven carregar e execute a classe
+  **`MercadoExpressApplication`** (botão ▶️ ao lado do `main`).
+- **Terminal**, na pasta do projeto:
 
 ```bash
-./mvnw spring-boot:test-run         # Linux/Mac
-mvnw.cmd spring-boot:test-run       # Windows
+mvnw.cmd spring-boot:run        # Windows
+./mvnw spring-boot:run          # Linux/Mac
 ```
 
-- **IntelliJ:** abra `src/test/java/.../MercadoExpressLocal.java` e clique no botão verde ao lado do `main`.
+Quando **nenhum banco é configurado** (variável `DB_HOST` ausente), a aplicação sobe sozinha um **PostgreSQL 16 real
+embutido** e cria nele o banco `mercado_express`. A conexão continua sendo feita pelo **`application.yml`**, exatamente
+como em produção; só a porta do servidor é informada pela variável `DB_PORT`. O console mostra:
 
-Aguarde a mensagem `PostgreSQL embutido rodando na porta ...` e acesse **http://localhost:8080**.
-(Na primeira vez, o Maven baixa as dependências e o PostgreSQL embutido; isso pode levar alguns minutos.)
+```
+==================================================================
+ Banco de dados: PostgreSQL 16 EMBUTIDO (nenhum DB_HOST configurado)
+ Porta 5xxxx | banco mercado_express | configuracao: application.yml
+==================================================================
+...
+>>> Mercado Express pronto: http://localhost:8080
+```
+
+Acesse **http://localhost:8080**. Os dados desse modo são temporários: cada execução começa do zero (12 produtos e os
+usuários de demonstração abaixo). Na primeira execução, o Maven baixa as dependências, o que pode levar alguns minutos.
+
+> O PostgreSQL embutido serve apenas para rodar na máquina e para os testes: ele **não entra no JAR de deploy**. No
+> Render (e no Docker Compose) a variável `DB_HOST` está definida e a aplicação usa o banco PostgreSQL configurado.
 
 ### Opção 2 — Docker Compose (banco + aplicação, com dados persistentes)
 
@@ -436,19 +450,13 @@ Para consultar o banco no pgAdmin/DBeaver: host `localhost`, porta **5433**, ban
 usuário `mercado`, senha `mercado123`. Para parar: `Ctrl+C` (ou `docker compose down`); para apagar os dados
 também: `docker compose down -v`.
 
-### Opção 3 — Com o PostgreSQL já instalado (pgAdmin)
+### Opção 3 — Usando um PostgreSQL já instalado (pgAdmin)
 
-1. Inicie o serviço do PostgreSQL e crie o banco **`mercado_express`** (as tabelas são criadas pelo Flyway).
-2. Se a senha não for `postgres` ou a porta não for `5432`, defina as variáveis de ambiente abaixo
-   (por exemplo `DB_PASSWORD` e `DB_PORT`).
-3. Execute:
-
-```bash
-./mvnw spring-boot:run          # Linux/Mac
-mvnw.cmd spring-boot:run        # Windows
-```
-
-No IntelliJ, também dá para executar a classe `MercadoExpressApplication`.
+1. Crie o banco **`mercado_express`** (as tabelas são criadas pelo Flyway).
+2. Defina as variáveis de ambiente do seu banco: `DB_HOST=localhost` (obrigatória para não usar o banco embutido),
+   e, se forem diferentes do padrão, `DB_PORT`, `DB_USER` e `DB_PASSWORD`. No IntelliJ: *Run → Edit Configurations →
+   MercadoExpressApplication → Environment variables*, por exemplo `DB_HOST=localhost;DB_PASSWORD=sua_senha`.
+3. Execute `MercadoExpressApplication` (ou `mvnw spring-boot:run`).
 
 ### 3. Usuários de demonstração (criados automaticamente)
 
@@ -461,7 +469,8 @@ No IntelliJ, também dá para executar a classe `MercadoExpressApplication`.
 
 | Variável | Padrão | Descrição |
 |---|---|---|
-| `DB_HOST` / `DB_PORT` / `DB_NAME` | `localhost` / `5432` / `mercado_express` | Endereço do PostgreSQL |
+| `DB_HOST` | *(ausente → PostgreSQL embutido)* | Servidor do PostgreSQL. Se definido, usa esse banco |
+| `DB_PORT` / `DB_NAME` | `5432` / `mercado_express` | Porta e nome do banco |
 | `DB_USER` / `DB_PASSWORD` | `postgres` / `postgres` | Credenciais do banco |
 | `ADMIN_EMAIL` / `ADMIN_PASSWORD` | `admin@mercadoexpress.com` / `Admin@123` | Administrador inicial |
 | `DEMO_CLIENTE_PASSWORD` | `Cliente@123` | Senha do cliente de demonstração |
@@ -476,7 +485,7 @@ No IntelliJ, também dá para executar a classe `MercadoExpressApplication`.
 ./mvnw test
 ```
 
-São **52 testes de integração** que sobem a aplicação inteira contra um **PostgreSQL 16 real embarcado**
+São **57 testes** (52 de integração, que sobem a aplicação inteira contra um **PostgreSQL 16 real embarcado**, e 5 unitários)
 (biblioteca zonky). Não é preciso ter Docker nem banco instalado para rodar os testes. Eles cobrem:
 
 | Classe | O que verifica |
@@ -487,6 +496,7 @@ São **52 testes de integração** que sobem a aplicação inteira contra um **P
 | `ControleDeAcessoClienteTest` | CLIENTE só consulta: 403 em criação/edição/exclusão e na área admin |
 | `AdminUsuariosTest` | promover/rebaixar perfil, excluir usuário, proteções contra o próprio admin |
 | `BancoDeDadosTest` | migrations do Flyway, nomes das tabelas, carga inicial e restrições (UNIQUE, CHECK) |
+| `BancoDeDadosLocalTest` | escolha do banco ao iniciar: embutido sem `DB_HOST`, banco configurado com `DB_HOST` (Render/Compose) |
 
 Além disso, o roteiro [`docs/e2e/e2e.js`](docs/e2e/e2e.js) (Playwright) percorre todas as telas no navegador
 Chromium com a aplicação em container Docker: **42 verificações**, incluindo checagem de que não há erros de

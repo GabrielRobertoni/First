@@ -26,7 +26,9 @@ USUÁRIOS PARA TESTE NO DEPLOY
 - Ou crie uma conta nova pela tela "Criar conta" (Sign Up): o novo usuário recebe o perfil CLIENTE.
 
 COMO RODAR NA MAQUINA (sem instalar PostgreSQL) - detalhes no README
-- Na pasta do projeto: mvnw spring-boot:test-run   (PostgreSQL embutido; acessar http://localhost:8080)
+- IntelliJ: executar a classe MercadoExpressApplication (ou, no terminal: mvnw spring-boot:run).
+  Sem banco configurado, a aplicacao sobe um PostgreSQL 16 embutido automaticamente.
+  Acessar http://localhost:8080
 - Ou: docker compose up --build   (com o Docker Desktop aberto)
 
 TABELAS NO POSTGRESQL
