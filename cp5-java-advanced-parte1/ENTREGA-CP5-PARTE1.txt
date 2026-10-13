@@ -28,6 +28,10 @@ USUÁRIOS PARA TESTE NO DEPLOY
 - Cliente:       cliente@mercadoexpress.com / senha: ________________
 - Ou crie uma conta nova pela tela "Criar conta" (Sign Up): o novo usuário recebe o perfil CLIENTE.
 
+COMO RODAR NA MAQUINA (sem instalar PostgreSQL) - detalhes no README
+- Na pasta do projeto: mvnw spring-boot:test-run   (PostgreSQL embutido; acessar http://localhost:8080)
+- Ou: docker compose up --build   (com o Docker Desktop aberto)
+
 TABELAS NO POSTGRESQL
 - TDS_Sec_MVC_TB_Mercado (produtos)
 - TDS_Users_Mercado (usuários e perfis)

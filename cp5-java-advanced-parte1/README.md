@@ -371,30 +371,54 @@ Lista da tabela `TDS_Users_Mercado`. O admin promove clientes a administradores 
 
 ## ▶️ Como executar localmente
 
-**Pré-requisitos:** JDK 21 e um PostgreSQL (local, pgAdmin ou Docker).
+**Pré-requisito comum:** JDK 21. O banco **não precisa estar instalado**: escolha uma das 3 opções.
 
-### 1. Criar o banco
+> 🌐 Para conferir o projeto sem instalar nada, use o **link do deploy** (topo deste README). As opções abaixo servem
+> para rodar o código na própria máquina.
 
-Com Docker:
+### Opção 1 — Sem instalar nada (PostgreSQL embutido) ⭐ mais simples
+
+Sobe um PostgreSQL 16 real dentro do próprio processo, aplica as migrations e inicia o sistema. Não precisa de
+Docker nem de banco instalado. **Os dados são descartados ao parar** (cada execução começa do zero).
+
+- **Terminal** (na pasta que contém o `pom.xml`):
 
 ```bash
-docker run -d --name pg-mercado -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=mercado_express -p 5432:5432 postgres:16
+./mvnw spring-boot:test-run         # Linux/Mac
+mvnw.cmd spring-boot:test-run       # Windows
 ```
 
-Ou, no pgAdmin, crie o banco **`mercado_express`** (usuário `postgres` / senha `postgres`, ou ajuste as variáveis abaixo).
-As tabelas são criadas pelo Flyway na primeira execução.
+- **IntelliJ:** abra `src/test/java/.../MercadoExpressLocal.java` e clique no botão verde ao lado do `main`.
 
-### 2. Rodar a aplicação
+Aguarde a mensagem `PostgreSQL embutido rodando na porta ...` e acesse **http://localhost:8080**.
+(Na primeira vez, o Maven baixa as dependências e o PostgreSQL embutido; isso pode levar alguns minutos.)
 
-- **IntelliJ:** abra a pasta do projeto (`pom.xml`), aguarde o Maven e execute `MercadoExpressApplication`.
-- **Terminal:**
+### Opção 2 — Docker Compose (banco + aplicação, com dados persistentes)
+
+Com o **Docker Desktop aberto**, na pasta do projeto:
+
+```bash
+docker compose up --build
+```
+
+Acesse **http://localhost:8080**. Os dados ficam guardados em um volume e **sobrevivem** a reinícios.
+Para consultar o banco no pgAdmin/DBeaver: host `localhost`, porta **5433**, banco `mercado_express`,
+usuário `mercado`, senha `mercado123`. Para parar: `Ctrl+C` (ou `docker compose down`); para apagar os dados
+também: `docker compose down -v`.
+
+### Opção 3 — Com o PostgreSQL já instalado (pgAdmin)
+
+1. Inicie o serviço do PostgreSQL e crie o banco **`mercado_express`** (as tabelas são criadas pelo Flyway).
+2. Se a senha não for `postgres` ou a porta não for `5432`, defina as variáveis de ambiente abaixo
+   (por exemplo `DB_PASSWORD` e `DB_PORT`).
+3. Execute:
 
 ```bash
 ./mvnw spring-boot:run          # Linux/Mac
 mvnw.cmd spring-boot:run        # Windows
 ```
 
-Acesse **http://localhost:8080**.
+No IntelliJ, também dá para executar a classe `MercadoExpressApplication`.
 
 ### 3. Usuários de demonstração (criados automaticamente)
 
