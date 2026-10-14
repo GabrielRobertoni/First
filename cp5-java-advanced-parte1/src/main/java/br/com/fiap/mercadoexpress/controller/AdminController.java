@@ -1,5 +1,6 @@
 package br.com.fiap.mercadoexpress.controller;
 
+import br.com.fiap.mercadoexpress.config.ContasDemonstracao;
 import br.com.fiap.mercadoexpress.exception.RegraNegocioException;
 import br.com.fiap.mercadoexpress.model.Perfil;
 import br.com.fiap.mercadoexpress.model.Usuario;
@@ -26,6 +27,7 @@ public class AdminController {
 
     private final ProdutoService produtoService;
     private final UsuarioService usuarioService;
+    private final ContasDemonstracao contasDemonstracao;
 
     @GetMapping("/painel")
     public String painel(Model model) {
@@ -41,6 +43,7 @@ public class AdminController {
     @GetMapping("/usuarios")
     public String usuarios(Model model) {
         model.addAttribute("usuarios", usuarioService.listarTodos());
+        model.addAttribute("contasDemonstracao", contasDemonstracao);
         model.addAttribute("perfis", Perfil.values());
         return "admin/usuarios";
     }

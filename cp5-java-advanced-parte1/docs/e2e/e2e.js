@@ -33,12 +33,17 @@ async function print(page, nome) {
   await page.goto(BASE + '/');
   ok(await page.title() === 'Início | Mercado Express', 'Landing page (index.html) carrega');
   ok(await page.locator('a', { hasText: 'Criar conta grátis' }).isVisible(), 'Landing mostra botões Entrar / Criar conta');
+  ok(await page.getByTestId('credencial-admin').innerText().then(t => t.includes('admin@mercadoexpress.com') && t.includes(SENHA_ADMIN)),
+     'Landing mostra e-mail e senha do Administrador');
+  ok(await page.getByTestId('credencial-cliente').innerText().then(t => t.includes('cliente@mercadoexpress.com') && t.includes('Cliente@123')),
+     'Landing mostra e-mail e senha do Cliente');
   await print(page, '01-landing-page.png');
 
   // 2. Rota restrita sem login -> tela de login personalizada
   await page.goto(BASE + '/produtos');
   ok(page.url().endsWith('/login'), 'Rota restrita redireciona visitante para /login');
   ok(await page.locator('h1', { hasText: 'Entrar' }).isVisible(), 'Tela de login personalizada exibida');
+  ok(await page.getByTestId('credenciais').isVisible(), 'Contas de avaliação aparecem abaixo do formulário de login');
   await print(page, '02-tela-login.png');
 
   // 3. Login com e-mail sem conta -> Sign Up
@@ -188,6 +193,26 @@ async function print(page, nome) {
   ok(await page.locator('.alerta--sucesso', { hasText: 'agora é Administrador' }).isVisible(), 'ADMIN promove cliente a administrador');
   ok(await page.locator('tr', { hasText: emailNovo }).locator('.selo--admin').isVisible(), 'Perfil atualizado na tabela');
   await print(page, '19-admin-usuarios.png');
+
+  // 16b. Login pelo botão "Preencher" (conta de avaliação do cliente)
+  await page.click('button:has-text("Sair")');
+  await page.waitForURL(/\?saiu/);
+  await page.goto(BASE + '/login');
+  await page.getByTestId('credencial-cliente').locator('button', { hasText: 'Preencher' }).click();
+  ok(await page.inputValue('#email') === 'cliente@mercadoexpress.com', 'Botão Preencher coloca o e-mail do cliente');
+  await page.click('form.formulario button[type=submit]');
+  await page.waitForURL(/\/produtos$/);
+  ok(true, 'Login com o botão Preencher (cliente) leva ao catálogo');
+  await page.click('button:has-text("Sair")');
+  await page.waitForURL(/\?saiu/);
+  await page.goto(BASE + '/login');
+  await page.getByTestId('credencial-admin').locator('button', { hasText: 'Preencher' }).click();
+  await page.click('form.formulario button[type=submit]');
+  await page.waitForURL(/\/admin\/painel$/);
+  ok(true, 'Login com o botão Preencher (admin) leva ao painel');
+  await page.goto(BASE + '/admin/usuarios');
+  ok(await page.locator('tr', { hasText: 'cliente@mercadoexpress.com' }).locator('button').count() === 0,
+     'Conta de avaliação do cliente não tem botões de excluir/alterar');
 
   // 17. Visual no celular
   const mobile = await browser.newContext({ viewport: { width: 375, height: 740 }, isMobile: true, locale: 'pt-BR' });

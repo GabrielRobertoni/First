@@ -9,7 +9,7 @@ INTEGRANTES
 - Bruno Ferreira ........................ RM 563489
 
 GITHUB DO PROJETO (README com descrição, prints e explicações, incluindo a tela de login)
-https://github.com/________________/cp5-java-advanced-parte1
+https://github.com/GabrielRobertoni/cp5-java-advanced-parte1
 
 DEPLOY (link de produção)
 https://________________________.onrender.com
@@ -20,9 +20,9 @@ Render (Web Service com Docker + banco PostgreSQL gerenciado do Render)
 IDE UTILIZADO
 IntelliJ IDEA
 
-USUÁRIOS PARA TESTE NO DEPLOY
-- Administrador: admin@mercadoexpress.com   / senha: ________________
-- Cliente:       cliente@mercadoexpress.com / senha: ________________
+USUÁRIOS PARA TESTE (também exibidos na página inicial e abaixo da tela de login)
+- Administrador: admin@mercadoexpress.com   / senha: Admin@123
+- Cliente:       cliente@mercadoexpress.com / senha: Cliente@123
 - Ou crie uma conta nova pela tela "Criar conta" (Sign Up): o novo usuário recebe o perfil CLIENTE.
 
 COMO RODAR NA MAQUINA (sem instalar PostgreSQL) - detalhes no README

@@ -22,6 +22,18 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
+    // Contas de avaliação: preenche o formulário de login com um clique
+    document.querySelectorAll("[data-preencher-email]").forEach((botao) => {
+        botao.addEventListener("click", () => {
+            const email = document.getElementById("email");
+            const senha = document.getElementById("senha");
+            if (!email || !senha) return;
+            email.value = botao.dataset.preencherEmail;
+            senha.value = botao.dataset.preencherSenha;
+            senha.focus();
+        });
+    });
+
     // Menu no celular
     const toggle = document.querySelector("[data-menu-toggle]");
     const menu = document.getElementById("menu-principal");

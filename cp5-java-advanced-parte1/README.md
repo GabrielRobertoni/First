@@ -13,6 +13,19 @@ com acessos diferentes e deploy em nuvem.
 | 💻 **IDE utilizada** | IntelliJ IDEA |
 | ☁️ **Plataforma de deploy** | Render (Web Service Docker + PostgreSQL gerenciado) |
 
+### 🔑 Acesso para avaliação
+
+As duas contas abaixo já existem no banco e também aparecem na **página inicial** e **logo abaixo da tela de login**
+(com botão **Preencher**), para entrar direto em cada perfil:
+
+| Perfil | E-mail | Senha |
+|---|---|---|
+| **ADMIN** (CRUD completo + gestão de usuários) | `admin@mercadoexpress.com` | `Admin@123` |
+| **CLIENTE** (somente consulta) | `cliente@mercadoexpress.com` | `Cliente@123` |
+
+> Essas duas contas são protegidas: não podem ser excluídas nem ter o perfil alterado pela tela de usuários,
+> para que o acesso continue funcionando durante a avaliação.
+
 ## 👥 Integrantes
 
 | Nome | RM |
@@ -289,12 +302,14 @@ return admin ? "/admin/painel" : "/produtos";
 > com a aplicação rodando em container Docker e PostgreSQL 16.
 
 ### 1. Landing page (`index.html`) — pública
-Apresenta o mercado, os botões **Entrar** / **Criar conta grátis** e a matriz de perfis de acesso.
+Apresenta o mercado, os botões **Entrar** / **Criar conta grátis**, as **contas de avaliação** (e-mail e senha dos dois
+perfis) e a matriz de perfis de acesso.
 
 ![Landing page](docs/prints/01-landing-page.png)
 
 ### 2. Tela de login personalizada
-Ao tentar acessar uma rota restrita sem estar logado, o visitante é levado para cá.
+Ao tentar acessar uma rota restrita sem estar logado, o visitante é levado para cá. Abaixo do formulário ficam as
+contas de avaliação, com o botão **Preencher** que coloca e-mail e senha no formulário.
 
 ![Tela de login](docs/prints/02-tela-login.png)
 
@@ -495,22 +510,22 @@ também: `docker compose down -v`.
 ./mvnw test
 ```
 
-São **62 testes** (52 de integração, que sobem a aplicação inteira contra um **PostgreSQL 16 real embarcado**, e 10 do modo local)
+São **64 testes** (54 de integração, que sobem a aplicação inteira contra um **PostgreSQL 16 real embarcado**, e 10 do modo local)
 (biblioteca zonky). Não é preciso ter Docker nem banco instalado para rodar os testes. Eles cobrem:
 
 | Classe | O que verifica |
 |---|---|
-| `RotasPublicasTest` | landing `index.html`, login próprio (não é a tela padrão), rotas protegidas, cabeçalhos de segurança |
+| `RotasPublicasTest` | landing `index.html`, login próprio (não é a tela padrão), contas de avaliação visíveis na landing e no login, rotas protegidas, cabeçalhos de segurança |
 | `AutenticacaoTest` | redirecionamento por perfil, senha errada, **sem conta → Sign Up**, CSRF, logout, Sign Up (validações, e-mail duplicado, BCrypt, não permite virar ADMIN) |
 | `ProdutoCrudTest` | **CREATE, READ, UPDATE (PUT) e DELETE** gravando no PostgreSQL, validações, busca, 404, painel |
 | `ControleDeAcessoClienteTest` | CLIENTE só consulta: 403 em criação/edição/exclusão e na área admin |
-| `AdminUsuariosTest` | promover/rebaixar perfil, excluir usuário, proteções contra o próprio admin |
+| `AdminUsuariosTest` | promover/rebaixar perfil, excluir usuário, proteções contra o próprio admin, contas de avaliação protegidas |
 | `BancoDeDadosTest` | migrations do Flyway, nomes das tabelas, carga inicial e restrições (UNIQUE, CHECK) |
 | `BancoDeDadosLocalTest` | escolha do banco ao iniciar: embutido sem `DB_HOST`, banco configurado com `DB_HOST` (Render/Compose) |
 | `PostgresEmbutidoTest` | dados persistem ao reiniciar; PostgreSQL órfão (processo morto à força) é desligado sem perder dados; pasta em uso ou inutilizável cai no banco temporário |
 
 Além disso, o roteiro [`docs/e2e/e2e.js`](docs/e2e/e2e.js) (Playwright) percorre todas as telas no navegador
-Chromium com a aplicação em container Docker: **42 verificações**, incluindo checagem de que não há erros de
+Chromium com a aplicação em container Docker: **49 verificações**, incluindo checagem de que não há erros de
 JavaScript nem violações de CSP no console.
 
 ---
@@ -523,8 +538,8 @@ O projeto já tem [`Dockerfile`](Dockerfile) (build multi-stage com Maven e JRE 
 
 1. Acesse [dashboard.render.com](https://dashboard.render.com) → **New** → **Blueprint**.
 2. Conecte este repositório do GitHub. O Render encontra o `render.yaml` na raiz automaticamente.
-3. O Render vai pedir os valores de `ADMIN_PASSWORD` e `DEMO_CLIENTE_PASSWORD` (escolha as senhas de produção).
-4. Clique em **Apply** e aguarde o build (alguns minutos). O link fica em `https://mercado-express-XXXX.onrender.com`.
+3. Clique em **Apply** e aguarde o build (alguns minutos). O link fica em `https://mercado-express-XXXX.onrender.com`.
+   As contas de avaliação são as mesmas da tabela do topo.
 
 ### Opção B — Manual
 
@@ -534,9 +549,8 @@ O projeto já tem [`Dockerfile`](Dockerfile) (build multi-stage com Maven e JRE 
    - **Language/Runtime:** Docker
    - **Root Directory:** deixe em branco (o projeto está na raiz do repositório)
    - **Instance Type:** Free
-   - **Environment Variables:** `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD` (dados do passo 1),
-     `ADMIN_PASSWORD` e `DEMO_CLIENTE_PASSWORD`.
+   - **Environment Variables:** `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD` (dados do passo 1).
 3. **Create Web Service** e aguarde o deploy.
 
 > ℹ️ No plano gratuito, o serviço "dorme" após um tempo sem acesso. O primeiro acesso depois disso pode levar cerca de
-> 1 minuto. A imagem foi testada com limite de **512 MB de RAM** (uso medido: ~305 MB).
+> 1 minuto. A imagem foi testada com limite de **512 MB de RAM** (uso medido: ~300 MB).

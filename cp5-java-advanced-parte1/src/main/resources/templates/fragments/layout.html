@@ -63,6 +63,34 @@
     <div th:if="${erro}" class="alerta alerta--erro" role="alert" th:text="${erro}">Erro</div>
 </div>
 
+<!-- ===================== Contas de acesso para avaliação ===================== -->
+<section th:fragment="credenciais(preencher)" class="credenciais" data-testid="credenciais"
+         aria-labelledby="titulo-credenciais">
+    <h2 id="titulo-credenciais" class="credenciais__titulo">Acesso para avaliação</h2>
+    <p class="credenciais__texto">Entre com uma das contas abaixo (uma de cada perfil):</p>
+    <div class="credenciais__lista">
+        <div class="credencial" th:with="c=${contasDemonstracao.admin}" data-testid="credencial-admin">
+            <span class="selo selo--admin" th:text="${c.perfil()}">Administrador</span>
+            <dl class="credencial__dados">
+                <dt>E-mail</dt><dd><code th:text="${c.email()}">admin@exemplo.com</code></dd>
+                <dt>Senha</dt><dd><code th:text="${c.senha()}">senha</code></dd>
+            </dl>
+            <button th:if="${preencher}" type="button" class="botao botao--pequeno botao--contorno"
+                    th:attr="data-preencher-email=${c.email()},data-preencher-senha=${c.senha()}">Preencher</button>
+        </div>
+        <div class="credencial" th:if="${contasDemonstracao.cliente != null}"
+             th:with="c=${contasDemonstracao.cliente}" data-testid="credencial-cliente">
+            <span class="selo selo--cliente" th:text="${c.perfil()}">Cliente</span>
+            <dl class="credencial__dados">
+                <dt>E-mail</dt><dd><code th:text="${c.email()}">cliente@exemplo.com</code></dd>
+                <dt>Senha</dt><dd><code th:text="${c.senha()}">senha</code></dd>
+            </dl>
+            <button th:if="${preencher}" type="button" class="botao botao--pequeno botao--contorno"
+                    th:attr="data-preencher-email=${c.email()},data-preencher-senha=${c.senha()}">Preencher</button>
+        </div>
+    </div>
+</section>
+
 <!-- ===================== Rodapé ===================== -->
 <footer th:fragment="rodape" class="rodape">
     <div class="container rodape__conteudo">

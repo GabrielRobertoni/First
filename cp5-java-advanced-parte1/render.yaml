@@ -33,11 +33,8 @@ services:
         fromDatabase:
           name: mercado-express-db
           property: password
-      # Senhas dos usuários iniciais: o Render pede o valor na criação (não ficam no GitHub)
-      - key: ADMIN_PASSWORD
-        sync: false
-      - key: DEMO_CLIENTE_PASSWORD
-        sync: false
+      # As contas de avaliação (admin e cliente) usam os valores do application.yml,
+      # os mesmos exibidos na página inicial e na tela de login.
 
 databases:
   - name: mercado-express-db

@@ -1,5 +1,6 @@
 package br.com.fiap.mercadoexpress.service;
 
+import br.com.fiap.mercadoexpress.config.ContasDemonstracao;
 import br.com.fiap.mercadoexpress.dto.CadastroForm;
 import br.com.fiap.mercadoexpress.exception.RecursoNaoEncontradoException;
 import br.com.fiap.mercadoexpress.exception.RegraNegocioException;
@@ -20,6 +21,7 @@ public class UsuarioService {
 
     private final UsuarioRepository repository;
     private final PasswordEncoder passwordEncoder;
+    private final ContasDemonstracao contasDemonstracao;
 
     /**
      * Sign Up: todo usuário que se cadastra pela tela pública recebe o perfil CLIENTE.
@@ -65,6 +67,9 @@ public class UsuarioService {
     @Transactional
     public Usuario alterarPerfil(Long id, Perfil novoPerfil, String emailDoAdminLogado) {
         Usuario usuario = buscarPorId(id);
+        if (contasDemonstracao.isProtegida(usuario.getEmail())) {
+            throw new RegraNegocioException("Esta é uma conta de acesso para avaliação e não pode ter o perfil alterado.");
+        }
         if (usuario.getEmail().equalsIgnoreCase(emailDoAdminLogado) && novoPerfil != Perfil.ADMIN) {
             throw new RegraNegocioException("Você não pode remover o seu próprio acesso de administrador.");
         }
@@ -75,6 +80,9 @@ public class UsuarioService {
     @Transactional
     public Usuario excluir(Long id, String emailDoAdminLogado) {
         Usuario usuario = buscarPorId(id);
+        if (contasDemonstracao.isProtegida(usuario.getEmail())) {
+            throw new RegraNegocioException("Esta é uma conta de acesso para avaliação e não pode ser excluída.");
+        }
         if (usuario.getEmail().equalsIgnoreCase(emailDoAdminLogado)) {
             throw new RegraNegocioException("Você não pode excluir a sua própria conta.");
         }

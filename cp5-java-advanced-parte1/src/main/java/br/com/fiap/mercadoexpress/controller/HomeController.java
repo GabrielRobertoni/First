@@ -1,14 +1,26 @@
 package br.com.fiap.mercadoexpress.controller;
 
+import br.com.fiap.mercadoexpress.config.ContasDemonstracao;
 import br.com.fiap.mercadoexpress.security.LoginSucessoHandler;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 
 @Controller
+@RequiredArgsConstructor
 public class HomeController {
+
+    private final ContasDemonstracao contasDemonstracao;
+
+    /** Credenciais de avaliação exibidas na página inicial e abaixo do formulário de login. */
+    @ModelAttribute("contasDemonstracao")
+    public ContasDemonstracao contasDemonstracao() {
+        return contasDemonstracao;
+    }
 
     /** Landing page pública (templates/index.html), acessível por / e por /index.html. */
     @GetMapping({"/", "/index.html"})

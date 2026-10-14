@@ -225,6 +225,28 @@ code {
 .auth__formulario { padding: 2.5rem; }
 .auth__rodape { margin-top: 1.2rem; text-align: center; }
 
+/* ---------------- Contas de acesso para avaliação ---------------- */
+.credenciais {
+    margin-top: 1.4rem; padding: 1rem 1.1rem; border-radius: 12px;
+    background: var(--laranja-100); border: 1.5px dashed var(--laranja-500); color: var(--cinza-900);
+}
+.credenciais__titulo { font-size: 1rem; margin: 0 0 .2rem; color: #a85a0d; }
+.credenciais__texto { margin: 0 0 .7rem; font-size: .9rem; color: var(--cinza-700); }
+.credenciais__lista { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: .7rem; }
+.credencial {
+    background: var(--branco); border-radius: 10px; padding: .7rem .8rem;
+    display: grid; gap: .45rem; align-content: start;
+}
+.credencial__dados { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: .15rem .6rem; margin: 0; font-size: .88rem; }
+.credencial__dados dt { color: var(--cinza-500); font-weight: 700; white-space: nowrap; }
+.credencial__dados dd { margin: 0; }
+.credencial__dados code { white-space: nowrap; font-size: .82rem; }
+.credencial .selo { justify-self: start; }
+.credencial__dados code { background: var(--cinza-100); color: var(--cinza-900); }
+.credencial .botao { justify-self: start; }
+.hero__credenciais { max-width: 680px; }
+.hero .credenciais .botao { background: transparent; color: var(--verde-700); border-color: var(--verde-600); }
+
 /* ---------------- Formulários ---------------- */
 .formulario { display: grid; gap: 1rem; }
 .campo { display: grid; gap: .35rem; }
@@ -313,6 +335,9 @@ code {
 }
 
 @media (max-width: 480px) {
+    .credenciais { padding: .8rem; }
+    .credencial { padding: .6rem; }
+    .credencial__dados code { font-size: .74rem; padding: .1rem .25rem; }
     .grade--4 { grid-template-columns: 1fr; }
     .detalhe__dados { grid-template-columns: 1fr; }
 }

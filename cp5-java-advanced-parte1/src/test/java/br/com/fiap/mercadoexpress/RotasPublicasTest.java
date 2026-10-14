@@ -32,6 +32,22 @@ class RotasPublicasTest extends TesteIntegracao {
     }
 
     @Test
+    @DisplayName("Página inicial e tela de login mostram as contas de avaliação dos dois perfis")
+    void credenciaisVisiveis() throws Exception {
+        for (String rota : new String[]{"/", "/login"}) {
+            mvc.perform(get(rota))
+                    .andExpect(status().isOk())
+                    .andExpect(content().string(containsString("Acesso para avaliação")))
+                    .andExpect(content().string(containsString(ADMIN_EMAIL)))
+                    .andExpect(content().string(containsString(ADMIN_SENHA)))
+                    .andExpect(content().string(containsString(CLIENTE_EMAIL)))
+                    .andExpect(content().string(containsString(CLIENTE_SENHA)));
+        }
+        mvc.perform(get("/login"))
+                .andExpect(content().string(containsString("data-preencher-email=\"" + ADMIN_EMAIL + "\"")));
+    }
+
+    @Test
     @DisplayName("A landing page também abre pelo endereço /index.html, sem login")
     void landingPagePorIndexHtml() throws Exception {
         mvc.perform(get("/index.html"))

@@ -39,6 +39,8 @@
                 <button type="submit" class="botao botao--bloco">Entrar</button>
             </form>
 
+            <div th:replace="~{fragments/layout :: credenciais(true)}"></div>
+
             <p class="auth__rodape">
                 Ainda não tem conta? <a th:href="@{/cadastro}">Cadastre-se (Sign Up)</a>
             </p>
