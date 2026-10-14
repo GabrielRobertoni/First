@@ -2,6 +2,7 @@ package br.com.fiap.mercadoexpress.config;
 
 import org.springframework.util.ClassUtils;
 
+import java.io.File;
 import java.util.Map;
 import java.util.Properties;
 
@@ -26,6 +27,8 @@ public final class BancoDeDadosLocal {
     private static final String MARCADOR_AVISO = "mercadoexpress.postgres-embutido.aviso";
 
     static final String BANCO = "mercado_express";
+    /** Pasta (dentro do projeto) onde o PostgreSQL embutido guarda os dados entre as execuções. */
+    static final String PASTA_DADOS = "dados-postgres";
     private static final String CLASSE_POSTGRES_EMBUTIDO = "io.zonky.test.db.postgres.embedded.EmbeddedPostgres";
 
     private BancoDeDadosLocal() {
@@ -52,7 +55,9 @@ public final class BancoDeDadosLocal {
             return;
         }
 
-        int porta = PostgresEmbutido.iniciar(BANCO);
+        File pastaDados = new File(System.getProperty("user.dir"), PASTA_DADOS);
+        PostgresEmbutido.Servidor servidor = PostgresEmbutido.iniciar(BANCO, pastaDados);
+        int porta = servidor.porta();
 
         // Lidos pelo application.yml: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:mercado_express}
         System.setProperty("DB_PORT", String.valueOf(porta));
@@ -64,7 +69,13 @@ public final class BancoDeDadosLocal {
         System.out.println("==================================================================");
         System.out.println(" Banco de dados: PostgreSQL 16 EMBUTIDO (nenhum DB_HOST configurado)");
         System.out.println(" Porta " + porta + " | banco " + BANCO + " | configuracao: application.yml");
-        System.out.println(" Os dados sao temporarios: cada execucao comeca do zero.");
+        if (servidor.persistente()) {
+            System.out.println(" Dados SALVOS na pasta: " + pastaDados.getAbsolutePath());
+            System.out.println(" (continuam la ao reiniciar; para zerar, pare o sistema e apague essa pasta)");
+        } else {
+            System.out.println(" ATENCAO: usando banco TEMPORARIO, os dados se perdem ao parar.");
+            System.out.println(" Motivo: " + servidor.motivoTemporario());
+        }
         System.out.println(" Para usar outro PostgreSQL, defina a variavel de ambiente DB_HOST.");
         System.out.println("==================================================================");
         System.out.println();

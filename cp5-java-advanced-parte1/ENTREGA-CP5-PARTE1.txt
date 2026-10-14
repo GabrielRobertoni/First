@@ -28,6 +28,7 @@ USUÁRIOS PARA TESTE NO DEPLOY
 COMO RODAR NA MAQUINA (sem instalar PostgreSQL) - detalhes no README
 - IntelliJ: executar a classe MercadoExpressApplication (ou, no terminal: mvnw spring-boot:run).
   Sem banco configurado, a aplicacao sobe um PostgreSQL 16 embutido automaticamente.
+  Os dados ficam salvos na pasta dados-postgres (para zerar: parar o sistema e apagar a pasta).
   Acessar http://localhost:8080
 - Ou: docker compose up --build   (com o Docker Desktop aberto)
 

@@ -95,7 +95,7 @@ src/main/java/br/com/fiap/mercadoexpress
 │   ├── PasswordConfig.java          # BCryptPasswordEncoder
 │   ├── CargaInicialUsuarios.java    # cria o admin (e um cliente demo) na 1ª execução
 │   ├── BancoDeDadosLocal.java       # sem DB_HOST: usa PostgreSQL embutido (rodar na máquina)
-│   └── PostgresEmbutido.java        # sobe o PostgreSQL 16 embutido (fora do JAR de deploy)
+│   └── PostgresEmbutido.java        # PostgreSQL 16 embutido com dados persistentes (fora do JAR de deploy)
 ├── controller/                      # camada Web (Controller do MVC)
 │   ├── HomeController.java          # /, /login, /acesso-negado
 │   ├── CadastroController.java      # /cadastro (Sign Up)
@@ -426,13 +426,23 @@ como em produção; só a porta do servidor é informada pela variável `DB_PORT
 ==================================================================
  Banco de dados: PostgreSQL 16 EMBUTIDO (nenhum DB_HOST configurado)
  Porta 5xxxx | banco mercado_express | configuracao: application.yml
+ Dados SALVOS na pasta: ...\dados-postgres
 ==================================================================
 ...
 >>> Mercado Express pronto: http://localhost:8080
 ```
 
-Acesse **http://localhost:8080**. Os dados desse modo são temporários: cada execução começa do zero (12 produtos e os
-usuários de demonstração abaixo). Na primeira execução, o Maven baixa as dependências, o que pode levar alguns minutos.
+Acesse **http://localhost:8080**. Na primeira execução, o Maven baixa as dependências, o que pode levar alguns minutos.
+
+**Os dados são salvos:** ficam na pasta **`dados-postgres/`**, dentro do projeto (fora do Git), e **continuam lá ao
+parar e iniciar o sistema de novo**: usuários cadastrados, produtos criados, editados e excluídos. Na primeira execução
+o banco nasce com 12 produtos e os usuários de demonstração abaixo.
+
+- **Para zerar tudo:** pare o sistema e apague a pasta `dados-postgres/`.
+- Se o sistema for encerrado à força, o PostgreSQL que ficou rodando é desligado automaticamente na próxima execução,
+  sem perder dados.
+- Se você abrir uma segunda cópia do sistema ao mesmo tempo, ela não derruba a primeira: usa um banco temporário e
+  avisa isso no console.
 
 > O PostgreSQL embutido serve apenas para rodar na máquina e para os testes: ele **não entra no JAR de deploy**. No
 > Render (e no Docker Compose) a variável `DB_HOST` está definida e a aplicação usa o banco PostgreSQL configurado.
@@ -485,7 +495,7 @@ também: `docker compose down -v`.
 ./mvnw test
 ```
 
-São **57 testes** (52 de integração, que sobem a aplicação inteira contra um **PostgreSQL 16 real embarcado**, e 5 unitários)
+São **62 testes** (52 de integração, que sobem a aplicação inteira contra um **PostgreSQL 16 real embarcado**, e 10 do modo local)
 (biblioteca zonky). Não é preciso ter Docker nem banco instalado para rodar os testes. Eles cobrem:
 
 | Classe | O que verifica |
@@ -497,6 +507,7 @@ São **57 testes** (52 de integração, que sobem a aplicação inteira contra u
 | `AdminUsuariosTest` | promover/rebaixar perfil, excluir usuário, proteções contra o próprio admin |
 | `BancoDeDadosTest` | migrations do Flyway, nomes das tabelas, carga inicial e restrições (UNIQUE, CHECK) |
 | `BancoDeDadosLocalTest` | escolha do banco ao iniciar: embutido sem `DB_HOST`, banco configurado com `DB_HOST` (Render/Compose) |
+| `PostgresEmbutidoTest` | dados persistem ao reiniciar; PostgreSQL órfão (processo morto à força) é desligado sem perder dados; pasta em uso ou inutilizável cai no banco temporário |
 
 Além disso, o roteiro [`docs/e2e/e2e.js`](docs/e2e/e2e.js) (Playwright) percorre todas as telas no navegador
 Chromium com a aplicação em container Docker: **42 verificações**, incluindo checagem de que não há erros de
